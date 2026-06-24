@@ -26,6 +26,8 @@
     appContrasena: 'prev-app-contrasena'
   };
 
+  let libsPdfCargadas = false;
+
   function obtenerCorrelativo() {
     const guardado = localStorage.getItem(STORAGE_KEY);
     if (guardado === null) {
@@ -44,10 +46,7 @@
 
   function formatearFecha() {
     const hoy = new Date();
-    const dia = hoy.getDate();
-    const mes = MESES[hoy.getMonth()];
-    const anio = hoy.getFullYear();
-    return 'Chincha, ' + dia + ' de ' + mes + ' del ' + anio;
+    return 'Chincha, ' + hoy.getDate() + ' de ' + MESES[hoy.getMonth()] + ' del ' + hoy.getFullYear();
   }
 
   function sanitizarNombreArchivo(texto) {
@@ -61,12 +60,12 @@
   }
 
   function actualizarVistaPrevia() {
-    Object.entries(BINDINGS).forEach(function ([bindKey, previewId]) {
-      const input = document.querySelector('[data-bind="' + bindKey + '"]');
-      const preview = document.getElementById(previewId);
-      if (!input || !preview) return;
-
-      preview.textContent = input.value.trim();
+    Object.entries(BINDINGS).forEach(function (entry) {
+      const input = document.querySelector('[data-bind="' + entry[0] + '"]');
+      const preview = document.getElementById(entry[1]);
+      if (input && preview) {
+        preview.textContent = input.value.trim();
+      }
     });
   }
 
@@ -79,14 +78,11 @@
 
   function inicializarFecha() {
     const fechaEl = document.getElementById('doc-fecha');
-    if (fechaEl) {
-      fechaEl.textContent = formatearFecha();
-    }
+    if (fechaEl) fechaEl.textContent = formatearFecha();
   }
 
   function inicializarFormulario() {
-    const inputs = document.querySelectorAll('[data-bind]');
-    inputs.forEach(function (input) {
+    document.querySelectorAll('[data-bind]').forEach(function (input) {
       input.addEventListener('input', actualizarVistaPrevia);
       input.addEventListener('change', actualizarVistaPrevia);
     });
@@ -97,18 +93,38 @@
     const cliente = document.getElementById('prev-cliente-nombre');
     const nombreCliente = cliente ? sanitizarNombreArchivo(cliente.textContent.trim()) : '';
     let nombre = 'documento-gps-' + correlativo;
-    if (nombreCliente) {
-      nombre += '-' + nombreCliente;
-    }
+    if (nombreCliente) nombre += '-' + nombreCliente;
     return nombre + '.pdf';
   }
 
-  function esperarImagenes(contenedor) {
-    const imagenes = contenedor.querySelectorAll('img');
-    return Promise.all(Array.from(imagenes).map(function (img) {
-      if (img.complete && img.naturalWidth > 0) {
-        return Promise.resolve();
+  function cargarScript(src) {
+    return new Promise(function (resolve, reject) {
+      if (document.querySelector('script[src="' + src + '"]')) {
+        resolve();
+        return;
       }
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = function () { reject(new Error('No se pudo cargar: ' + src)); };
+      document.body.appendChild(script);
+    });
+  }
+
+  function cargarLibreriasPdf() {
+    if (libsPdfCargadas && typeof html2canvas !== 'undefined' && window.jspdf) {
+      return Promise.resolve();
+    }
+    return cargarScript('libs/html2canvas.min.js')
+      .then(function () { return cargarScript('libs/jspdf.umd.min.js'); })
+      .then(function () {
+        libsPdfCargadas = true;
+      });
+  }
+
+  function esperarImagenes(contenedor) {
+    return Promise.all(Array.from(contenedor.querySelectorAll('img')).map(function (img) {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
       return new Promise(function (resolve) {
         img.addEventListener('load', resolve, { once: true });
         img.addEventListener('error', resolve, { once: true });
@@ -118,38 +134,28 @@
 
   function descargarPDF(correlativo) {
     const elemento = document.getElementById('documento');
-
     if (!elemento) {
       return Promise.reject(new Error('No se encontró el documento.'));
     }
 
-    if (typeof html2canvas === 'undefined' || !window.jspdf) {
-      return Promise.reject(new Error('Las librerías PDF no están disponibles.'));
-    }
-
-    return esperarImagenes(elemento).then(function () {
-      return html2canvas(elemento, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: elemento.offsetWidth,
-        height: elemento.offsetHeight
+    return cargarLibreriasPdf()
+      .then(function () { return esperarImagenes(elemento); })
+      .then(function () {
+        return html2canvas(elemento, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false
+        });
+      })
+      .then(function (canvas) {
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const PDF = window.jspdf.jsPDF;
+        const pdf = new PDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+        pdf.save(crearNombreArchivo(correlativo));
       });
-    }).then(function (canvas) {
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const jsPDF = window.jspdf.jsPDF;
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-        compress: true
-      });
-
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-      pdf.save(crearNombreArchivo(correlativo));
-    });
   }
 
   function inicializarBotonGenerar() {
@@ -166,7 +172,6 @@
       }
 
       actualizarCorrelativoDisplay(correlativo);
-
       const textoOriginal = btn.textContent;
       btn.disabled = true;
       btn.textContent = 'Generando PDF...';
@@ -174,21 +179,18 @@
       descargarPDF(correlativo)
         .then(function () {
           if (correlativo < CORRELATIVO_MAX) {
-            correlativo += 1;
-            guardarCorrelativo(correlativo);
-            actualizarCorrelativoDisplay(correlativo);
+            guardarCorrelativo(correlativo + 1);
+            actualizarCorrelativoDisplay(correlativo + 1);
           } else {
             btn.disabled = true;
           }
         })
         .catch(function (error) {
-          console.error('Error al generar PDF:', error);
-          alert('No se pudo generar el PDF. Recarga la página (Ctrl+F5) e intenta de nuevo.');
+          console.error('Error PDF:', error);
+          alert('No se pudo generar el PDF. Recarga con Ctrl+F5 e intenta de nuevo.');
         })
         .finally(function () {
-          if (correlativo < CORRELATIVO_MAX) {
-            btn.disabled = false;
-          }
+          if (obtenerCorrelativo() < CORRELATIVO_MAX) btn.disabled = false;
           btn.textContent = textoOriginal;
         });
     });
@@ -199,8 +201,7 @@
     if (!btn) return;
 
     btn.addEventListener('click', function () {
-      const correlativo = obtenerCorrelativo();
-      actualizarCorrelativoDisplay(correlativo);
+      actualizarCorrelativoDisplay(obtenerCorrelativo());
       window.print();
     });
   }
@@ -214,8 +215,8 @@
     inicializarBotonImprimir();
 
     if (correlativo >= CORRELATIVO_MAX) {
-      const btn = document.getElementById('btn-generar');
-      if (btn) btn.disabled = true;
+      const btnGen = document.getElementById('btn-generar');
+      if (btnGen) btnGen.disabled = true;
     }
   }
 

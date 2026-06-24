@@ -227,6 +227,10 @@ body {
   position: relative;
   overflow: hidden;
   background-color: var(--color-white);
+  background-image: url("assets/membretada.jpg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center top;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
@@ -499,6 +503,8 @@ body {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     background-color: #ffffff !important;
+    background-image: url("assets/membretada.jpg") !important;
+    background-size: 100% 100% !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
