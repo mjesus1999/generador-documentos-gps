@@ -224,6 +224,36 @@
     });
   }
 
+  function ajustarEscalaVistaPrevia() {
+    const doc = document.getElementById('documento');
+    const wrap = document.querySelector('.preview-scale-wrap');
+    if (!doc || !wrap) return;
+
+    if (window.innerWidth > 900) {
+      doc.style.transform = '';
+      wrap.style.height = '';
+      return;
+    }
+
+    doc.style.transform = '';
+    const anchoDoc = doc.offsetWidth;
+    const anchoDisp = wrap.clientWidth;
+    if (!anchoDoc || !anchoDisp) return;
+
+    const escala = Math.min(1, anchoDisp / anchoDoc);
+    doc.style.transform = 'scale(' + escala + ')';
+    doc.style.transformOrigin = 'top center';
+    wrap.style.height = Math.ceil(doc.offsetHeight * escala) + 'px';
+  }
+
+  function inicializarVistaResponsive() {
+    ajustarEscalaVistaPrevia();
+    window.addEventListener('resize', ajustarEscalaVistaPrevia);
+    window.addEventListener('orientationchange', function () {
+      setTimeout(ajustarEscalaVistaPrevia, 150);
+    });
+  }
+
   function init() {
     const correlativo = obtenerCorrelativo();
     inicializarFecha();
@@ -232,6 +262,7 @@
     inicializarBotonGenerar();
     inicializarBotonImprimir();
     inicializarBotonReset();
+    inicializarVistaResponsive();
 
     if (correlativo >= CORRELATIVO_MAX) {
       const btnGen = document.getElementById('btn-generar');
