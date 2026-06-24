@@ -197,6 +197,23 @@ body {
   font-size: 1rem;
 }
 
+.btn-reset {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.4rem;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-reset:hover {
+  color: var(--color-primary);
+}
+
 /* ============================================
    Panel de vista previa
    ============================================ */

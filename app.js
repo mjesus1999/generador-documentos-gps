@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'gps_doc_correlativo';
+  const STORAGE_KEY = 'gps_doc_correlativo_v2';
   const CORRELATIVO_INICIAL = 15;
   const CORRELATIVO_MAX = 1500;
 
@@ -196,6 +196,24 @@
     });
   }
 
+  function resetearCorrelativo() {
+    guardarCorrelativo(CORRELATIVO_INICIAL);
+    actualizarCorrelativoDisplay(CORRELATIVO_INICIAL);
+    const btnGen = document.getElementById('btn-generar');
+    if (btnGen) btnGen.disabled = false;
+  }
+
+  function inicializarBotonReset() {
+    const btn = document.getElementById('btn-reset-correlativo');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+      if (confirm('¿Resetear el correlativo a Documento N° 15?')) {
+        resetearCorrelativo();
+      }
+    });
+  }
+
   function inicializarBotonImprimir() {
     const btn = document.getElementById('btn-imprimir');
     if (!btn) return;
@@ -213,6 +231,7 @@
     inicializarFormulario();
     inicializarBotonGenerar();
     inicializarBotonImprimir();
+    inicializarBotonReset();
 
     if (correlativo >= CORRELATIVO_MAX) {
       const btnGen = document.getElementById('btn-generar');
