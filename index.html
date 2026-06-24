@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generador de Documentos de Instalación GPS</title>
+  <script>
+    (function () {
+      var base = document.createElement('base');
+      if (location.hostname.endsWith('github.io')) {
+        var partes = location.pathname.split('/').filter(Boolean);
+        var repo = partes[0] || '';
+        base.href = repo ? '/' + repo + '/' : '/';
+      } else {
+        base.href = './';
+      }
+      document.head.appendChild(base);
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
