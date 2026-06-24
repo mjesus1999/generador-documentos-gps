@@ -103,6 +103,19 @@
     return nombre + '.pdf';
   }
 
+  function esperarImagenes(contenedor) {
+    const imagenes = contenedor.querySelectorAll('img');
+    return Promise.all(Array.from(imagenes).map(function (img) {
+      if (img.complete && img.naturalWidth > 0) {
+        return Promise.resolve();
+      }
+      return new Promise(function (resolve) {
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    }));
+  }
+
   function descargarPDF(correlativo) {
     const elemento = document.getElementById('documento');
 
@@ -110,30 +123,33 @@
       return Promise.reject(new Error('No se encontró el documento.'));
     }
 
-    if (typeof html2pdf === 'undefined') {
-      return Promise.reject(new Error('La librería PDF no está disponible.'));
+    if (typeof html2canvas === 'undefined' || !window.jspdf) {
+      return Promise.reject(new Error('Las librerías PDF no están disponibles.'));
     }
 
-    const opciones = {
-      margin: 0,
-      filename: crearNombreArchivo(correlativo),
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
+    return esperarImagenes(elemento).then(function () {
+      return html2canvas(elemento, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        logging: false
-      },
-      jsPDF: {
+        logging: false,
+        width: elemento.offsetWidth,
+        height: elemento.offsetHeight
+      });
+    }).then(function (canvas) {
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const jsPDF = window.jspdf.jsPDF;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
-        orientation: 'portrait'
-      },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
+        compress: true
+      });
 
-    return html2pdf().set(opciones).from(elemento).save();
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      pdf.save(crearNombreArchivo(correlativo));
+    });
   }
 
   function inicializarBotonGenerar() {
@@ -165,8 +181,9 @@
             btn.disabled = true;
           }
         })
-        .catch(function () {
-          alert('No se pudo generar el PDF. Verifica tu conexión e intenta de nuevo.');
+        .catch(function (error) {
+          console.error('Error al generar PDF:', error);
+          alert('No se pudo generar el PDF. Recarga la página (Ctrl+F5) e intenta de nuevo.');
         })
         .finally(function () {
           if (correlativo < CORRELATIVO_MAX) {
