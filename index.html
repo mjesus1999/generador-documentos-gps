@@ -83,6 +83,9 @@
           <button type="button" id="btn-generar" class="btn-primary">
             Generar y Descargar PDF
           </button>
+          <button type="button" id="btn-imprimir" class="btn-secondary">
+            Imprimir
+          </button>
           <p class="correlativo-info">
             Próximo documento: <strong id="correlativo-display">15</strong>
           </p>
@@ -93,6 +96,12 @@
     <section class="preview-panel">
       <div class="preview-wrapper">
         <article id="documento" class="documento-a4" aria-label="Vista previa del documento">
+          <img
+            class="doc-membretada-fondo"
+            src="assets/membretada.jpg"
+            alt=""
+            aria-hidden="true"
+          >
           <div class="doc-contenido">
             <div class="doc-cuerpo">
             <h2 class="doc-titulo">RASTREO Y MONITOREO EN TIEMPO REAL DEL VEHICULO</h2>
@@ -198,6 +207,7 @@
     </section>
   </main>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSDeiW9klz4Px4OajNvg09dHNNLevaAtGPQo2Vni/7l7Gc0Sr/f9DW6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="app.js"></script>
 </body>
 </html>

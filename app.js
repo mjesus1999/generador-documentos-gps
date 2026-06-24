@@ -47,7 +47,17 @@
     const dia = hoy.getDate();
     const mes = MESES[hoy.getMonth()];
     const anio = hoy.getFullYear();
-    return `Chincha, ${dia} de ${mes} del ${anio}`;
+    return 'Chincha, ' + dia + ' de ' + mes + ' del ' + anio;
+  }
+
+  function sanitizarNombreArchivo(texto) {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40)
+      .toLowerCase();
   }
 
   function actualizarVistaPrevia() {
@@ -83,6 +93,49 @@
     actualizarVistaPrevia();
   }
 
+  function crearNombreArchivo(correlativo) {
+    const cliente = document.getElementById('prev-cliente-nombre');
+    const nombreCliente = cliente ? sanitizarNombreArchivo(cliente.textContent.trim()) : '';
+    let nombre = 'documento-gps-' + correlativo;
+    if (nombreCliente) {
+      nombre += '-' + nombreCliente;
+    }
+    return nombre + '.pdf';
+  }
+
+  function descargarPDF(correlativo) {
+    const elemento = document.getElementById('documento');
+
+    if (!elemento) {
+      return Promise.reject(new Error('No se encontró el documento.'));
+    }
+
+    if (typeof html2pdf === 'undefined') {
+      return Promise.reject(new Error('La librería PDF no está disponible.'));
+    }
+
+    const opciones = {
+      margin: 0,
+      filename: crearNombreArchivo(correlativo),
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    return html2pdf().set(opciones).from(elemento).save();
+  }
+
   function inicializarBotonGenerar() {
     const btn = document.getElementById('btn-generar');
     if (!btn) return;
@@ -98,15 +151,40 @@
 
       actualizarCorrelativoDisplay(correlativo);
 
-      window.print();
+      const textoOriginal = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Generando PDF...';
 
-      if (correlativo < CORRELATIVO_MAX) {
-        correlativo += 1;
-        guardarCorrelativo(correlativo);
-        actualizarCorrelativoDisplay(correlativo);
-      } else {
-        btn.disabled = true;
-      }
+      descargarPDF(correlativo)
+        .then(function () {
+          if (correlativo < CORRELATIVO_MAX) {
+            correlativo += 1;
+            guardarCorrelativo(correlativo);
+            actualizarCorrelativoDisplay(correlativo);
+          } else {
+            btn.disabled = true;
+          }
+        })
+        .catch(function () {
+          alert('No se pudo generar el PDF. Verifica tu conexión e intenta de nuevo.');
+        })
+        .finally(function () {
+          if (correlativo < CORRELATIVO_MAX) {
+            btn.disabled = false;
+          }
+          btn.textContent = textoOriginal;
+        });
+    });
+  }
+
+  function inicializarBotonImprimir() {
+    const btn = document.getElementById('btn-imprimir');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+      const correlativo = obtenerCorrelativo();
+      actualizarCorrelativoDisplay(correlativo);
+      window.print();
     });
   }
 
@@ -116,6 +194,7 @@
     actualizarCorrelativoDisplay(correlativo);
     inicializarFormulario();
     inicializarBotonGenerar();
+    inicializarBotonImprimir();
 
     if (correlativo >= CORRELATIVO_MAX) {
       const btn = document.getElementById('btn-generar');
