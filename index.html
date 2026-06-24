@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Documentos de Instalación GPS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>Generador de Documentos de Instalación GPS</h1>
+    <p class="app-subtitle">Complete el formulario y descargue el documento en PDF</p>
+  </header>
+
+  <main class="app-layout">
+    <aside class="control-panel">
+      <form id="doc-form" autocomplete="off" onsubmit="return false;">
+        <section class="form-section">
+          <h2>Datos del Cliente</h2>
+          <div class="form-group">
+            <label for="cliente-nombre">Nombres y Apellidos</label>
+            <input type="text" id="cliente-nombre" data-bind="clienteNombre" placeholder="Ej: Juan Pérez García">
+          </div>
+          <div class="form-group">
+            <label for="cliente-celular">Celular</label>
+            <input type="text" id="cliente-celular" data-bind="clienteCelular" placeholder="Ej: 987654321">
+          </div>
+          <div class="form-group">
+            <label for="cliente-ubicacion">Ubicación</label>
+            <input type="text" id="cliente-ubicacion" data-bind="clienteUbicacion" placeholder="Ej: Chincha Alta">
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Datos del Vehículo</h2>
+          <div class="form-group">
+            <label for="vehiculo-unidad">Unidad</label>
+            <input type="text" id="vehiculo-unidad" data-bind="vehiculoUnidad" placeholder="Ej: 01">
+          </div>
+          <div class="form-group">
+            <label for="vehiculo-marca">Marca</label>
+            <input type="text" id="vehiculo-marca" data-bind="vehiculoMarca" placeholder="Ej: Toyota">
+          </div>
+          <div class="form-group">
+            <label for="vehiculo-modelo">Modelo</label>
+            <input type="text" id="vehiculo-modelo" data-bind="vehiculoModelo" placeholder="Ej: Hilux">
+          </div>
+          <div class="form-group">
+            <label for="vehiculo-chasis">Chasis</label>
+            <input type="text" id="vehiculo-chasis" data-bind="vehiculoChasis" placeholder="Número de chasis">
+          </div>
+          <div class="form-group">
+            <label for="vehiculo-color">Color</label>
+            <input type="text" id="vehiculo-color" data-bind="vehiculoColor" placeholder="Ej: Blanco">
+          </div>
+          <div class="form-group">
+            <label for="vehiculo-placa">Placa</label>
+            <input type="text" id="vehiculo-placa" data-bind="vehiculoPlaca" placeholder="Ej: ABC-123">
+          </div>
+          <div class="form-group">
+            <label for="vehiculo-chip">Chip del GPS</label>
+            <input type="text" id="vehiculo-chip" data-bind="vehiculoChip" placeholder="Número de chip">
+          </div>
+          <div class="form-group">
+            <label for="vehiculo-imei">IMEI</label>
+            <input type="text" id="vehiculo-imei" data-bind="vehiculoImei" placeholder="Número IMEI">
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Acceso al App</h2>
+          <div class="form-group">
+            <label for="app-usuario">Usuario</label>
+            <input type="text" id="app-usuario" data-bind="appUsuario" placeholder="Usuario de la app">
+          </div>
+          <div class="form-group">
+            <label for="app-contrasena">Contraseña</label>
+            <input type="text" id="app-contrasena" data-bind="appContrasena" placeholder="Contraseña de la app">
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button type="button" id="btn-generar" class="btn-primary">
+            Generar y Descargar PDF
+          </button>
+          <p class="correlativo-info">
+            Próximo documento: <strong id="correlativo-display">15</strong>
+          </p>
+        </div>
+      </form>
+    </aside>
+
+    <section class="preview-panel">
+      <div class="preview-wrapper">
+        <article id="documento" class="documento-a4" aria-label="Vista previa del documento">
+          <div class="doc-contenido">
+            <div class="doc-cuerpo">
+            <h2 class="doc-titulo">RASTREO Y MONITOREO EN TIEMPO REAL DEL VEHICULO</h2>
+
+            <p class="doc-fecha" id="doc-fecha">Chincha, — de — del —</p>
+
+            <p class="doc-seccion-titulo">DATOS DEL CLIENTE</p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta">NOMBRES Y APELLIDOS</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-cliente-nombre"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">CELULAR</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-cliente-celular"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">UBICACIÓN</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-cliente-ubicacion"></span>
+            </p>
+
+            <p class="doc-espacio-seccion" aria-hidden="true"></p>
+
+            <p class="doc-seccion-titulo">DATOS DEL VEHICULO</p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">UNIDAD</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-vehiculo-unidad"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">MARCA</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-vehiculo-marca"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">MODELO</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-vehiculo-modelo"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">CHASIS</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-vehiculo-chasis"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">COLOR</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-vehiculo-color"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">PLACA</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-vehiculo-placa"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta">CHIP DEL GPS</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-vehiculo-chip"></span>
+            </p>
+            <p class="doc-linea">
+              <span class="doc-etiqueta doc-etiqueta-corta">IMEI</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-vehiculo-imei"></span>
+            </p>
+
+            <div class="doc-bloque-instrucciones">
+              <img
+                class="doc-qr-img"
+                src="assets/qr-baanool.png"
+                alt="Código QR BAANOOL IOT"
+                width="69"
+                height="70"
+              >
+              <p class="doc-instrucciones">
+                Para poder acceder a la ubicación de su unidad en tiempo real, descargar en su celular ingresando al <strong>PLAY STORE</strong> el siguiente aplicativo <strong>BAANOOL IOT</strong> e ingresar los siguientes comandos
+              </p>
+            </div>
+
+            <p class="doc-linea doc-linea-acceso">
+              <span class="doc-etiqueta doc-etiqueta-acceso">USUARIO</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-app-usuario"></span>
+            </p>
+            <p class="doc-linea doc-linea-acceso">
+              <span class="doc-etiqueta doc-etiqueta-acceso">CONTRASEÑA</span>
+              <span class="doc-separador">:</span>
+              <span class="doc-valor" id="prev-app-contrasena"></span>
+            </p>
+            </div>
+
+            <footer class="doc-zona-pie">
+              <p class="doc-contacto">
+                Ante cualquier incidente con la instalación comunicarse a los siguientes números:
+              </p>
+              <p class="doc-telefono">933262641</p>
+              <p class="doc-correlativo" id="prev-correlativo">Documento N° 15</p>
+            </footer>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

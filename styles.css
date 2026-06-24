@@ -1,0 +1,523 @@
+/* ============================================
+   Variables y reset
+   ============================================ */
+:root {
+  --color-primary: #f26522;
+  --color-primary-dark: #d4561c;
+  --color-white: #ffffff;
+  --color-text: #000000;
+  --color-text-muted: #4a4a4a;
+  --color-border-light: #d0d0d0;
+  --color-bg: #f5f5f5;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+  --shadow-a4: 0 2px 16px rgba(0, 0, 0, 0.15);
+  --radius: 8px;
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-doc: "Times New Roman", Times, serif;
+  --doc-ancho-etiqueta: 48mm;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ============================================
+   Encabezado de la aplicación
+   ============================================ */
+.app-header {
+  background: #1a1a1a;
+  color: var(--color-white);
+  padding: 1.25rem 2rem;
+  border-bottom: 4px solid var(--color-primary);
+}
+
+.app-header h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.app-subtitle {
+  font-size: 0.875rem;
+  color: #b0b0b0;
+  margin-top: 0.25rem;
+}
+
+/* ============================================
+   Layout principal
+   ============================================ */
+.app-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 0;
+  min-height: calc(100vh - 80px);
+}
+
+/* ============================================
+   Panel de control
+   ============================================ */
+.control-panel {
+  background: var(--color-white);
+  border-right: 1px solid var(--color-border-light);
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.form-section {
+  margin-bottom: 1.5rem;
+}
+
+.form-section h2 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 0.85rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid var(--color-border-light);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: var(--color-white);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(242, 101, 34, 0.15);
+}
+
+.form-group input::placeholder {
+  color: #aaa;
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.correlativo-info {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.75rem;
+}
+
+.correlativo-info strong {
+  color: var(--color-primary);
+  font-size: 1rem;
+}
+
+/* ============================================
+   Panel de vista previa
+   ============================================ */
+.preview-panel {
+  background: #e0e0e0;
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.preview-wrapper {
+  width: 100%;
+  max-width: 860px;
+}
+
+/* ============================================
+   Documento A4 — hoja membretada Yonda
+   Una sola hoja fija: vista previa = impresión
+   ============================================ */
+.documento-a4 {
+  width: 210mm;
+  height: 297mm;
+  max-height: 297mm;
+  margin: 0 auto;
+  box-shadow: var(--shadow-a4);
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-white);
+  background-image: url("assets/membretada.jpg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center top;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.doc-contenido {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 44mm 30mm 10mm;
+  overflow: hidden;
+  font-family: var(--font-doc);
+  color: var(--color-text);
+}
+
+.doc-cuerpo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.doc-titulo {
+  text-align: center;
+  font-size: 14pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin-bottom: 2mm;
+}
+
+.doc-fecha {
+  text-align: right;
+  font-size: 12pt;
+  margin-bottom: 3mm;
+  padding-right: 1mm;
+}
+
+.doc-seccion-titulo {
+  font-size: 12pt;
+  font-weight: 700;
+  text-decoration: underline;
+  text-transform: uppercase;
+  margin-bottom: 0.5mm;
+}
+
+.doc-espacio-seccion {
+  height: 2mm;
+}
+
+.doc-linea {
+  display: grid;
+  grid-template-columns: var(--doc-ancho-etiqueta) 4mm 1fr;
+  align-items: baseline;
+  font-size: 12pt;
+  line-height: 1;
+  min-height: 4.2mm;
+  margin-bottom: 0.3mm;
+}
+
+.doc-etiqueta {
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.doc-etiqueta-corta {
+  letter-spacing: 0.02em;
+}
+
+.doc-separador {
+  text-align: left;
+}
+
+.doc-valor {
+  min-height: 1.1em;
+  word-break: break-word;
+}
+
+.doc-valor:empty::after {
+  content: "\00a0";
+}
+
+.doc-bloque-instrucciones {
+  margin-top: 2mm;
+  margin-bottom: 0;
+  position: relative;
+  min-height: 18mm;
+}
+
+.doc-qr-img {
+  float: right;
+  width: 22mm;
+  height: auto;
+  margin-left: 3mm;
+  margin-bottom: 1mm;
+  shape-outside: margin-box;
+}
+
+.doc-instrucciones {
+  font-size: 13pt;
+  text-align: justify;
+  line-height: 1.25;
+}
+
+.doc-instrucciones strong {
+  font-weight: 700;
+}
+
+.doc-linea-acceso {
+  font-size: 14pt;
+  margin-top: 0.5mm;
+  min-height: 5mm;
+}
+
+.doc-etiqueta-acceso {
+  font-weight: 700;
+}
+
+/* Pie de página — siempre visible, dentro del flujo del documento */
+.doc-zona-pie {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 2mm;
+  padding-bottom: 2mm;
+}
+
+.doc-contacto,
+.doc-telefono {
+  font-size: 12pt;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #000000;
+}
+
+.doc-telefono {
+  margin-top: 0.5mm;
+}
+
+.doc-correlativo {
+  font-size: 11pt;
+  font-weight: 700;
+  text-align: right;
+  color: #000000;
+  margin-top: 1.5mm;
+  padding-right: 1mm;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 900px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .control-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-light);
+    max-height: none;
+  }
+
+  .preview-panel {
+    padding: 1rem;
+  }
+
+  .documento-a4 {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 210 / 297;
+  }
+
+  .doc-contenido {
+    position: relative;
+    inset: auto;
+    display: block;
+    padding: 18% 8mm 8mm;
+    overflow: visible;
+  }
+
+  .doc-cuerpo {
+    overflow: visible;
+  }
+
+  .doc-zona-pie {
+    margin-top: 4mm;
+  }
+
+  .doc-correlativo {
+    color: var(--color-primary);
+  }
+
+  .doc-linea {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-bottom: 2mm;
+  }
+
+  .doc-separador {
+    display: none;
+  }
+
+  .doc-etiqueta::after {
+    content: ":";
+  }
+}
+
+/* ============================================
+   Impresión / PDF
+   ============================================ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 210mm !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  .app-header,
+  .control-panel {
+    display: none !important;
+  }
+
+  .app-layout {
+    display: block !important;
+    min-height: auto !important;
+  }
+
+  .preview-panel {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .preview-wrapper {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #documento {
+    width: 210mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    background-image: url("assets/membretada.jpg") !important;
+    background-size: 100% 100% !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .doc-contenido {
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 44mm 30mm 10mm !important;
+    overflow: hidden !important;
+  }
+
+  .doc-cuerpo {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .doc-zona-pie {
+    flex: 0 0 auto !important;
+    display: block !important;
+    visibility: visible !important;
+    margin-top: auto !important;
+    padding-top: 2mm !important;
+    padding-bottom: 2mm !important;
+  }
+
+  .doc-contacto,
+  .doc-telefono,
+  .doc-correlativo {
+    display: block !important;
+    visibility: visible !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .doc-correlativo {
+    text-align: right !important;
+  }
+
+  .doc-qr-img {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
